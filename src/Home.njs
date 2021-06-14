@@ -3,6 +3,7 @@ import Logo from 'nullstack/logo';
 import mysql2 from 'mysql2';
 
 //styles
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './Home.scss';
 
 
@@ -10,9 +11,17 @@ class Home extends Nullstack {
 
   users = [];
 
-  prepare({ project, page }) {
+  async prepare({ project, page, router }) {
     page.title = `${project.name} - Nulla-chan te dá as boas vindas!`;
     page.description = `${project.name} foi feito com Nullstack`;
+
+    if (await this.isLoggedIn() ==  false)
+      router.url = "/login";
+
+  }
+
+  static async isLoggedIn({ request }) {
+    return !!request.session.user;
   }
 
   static async getUsers({ database }) {
@@ -38,7 +47,7 @@ class Home extends Nullstack {
               {this.users.map((element) => {
                 return (<tr>
                   <td>{element.username}</td>
-                  <td>{element.active? "Sim" : "Não"}</td>
+                  <td>{element.active ? "Sim" : "Não"}</td>
                 </tr>
                 );
               })}

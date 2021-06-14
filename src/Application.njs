@@ -1,7 +1,9 @@
 import Nullstack from 'nullstack';
 import mysql from 'mysql2/promise/';
+import session from 'express-session'
+
 //styles
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';  
 import './Application.scss';
 //components
 import Home from './Home';
@@ -14,17 +16,30 @@ class Application extends Nullstack {
   }
 
   static async start(context) {
+    const maxAge = 1000 * 60 * 60 * 24
+    context.server.use(
+      session({
+        secret: context.secrets.privateKey,
+        //resave: true,
+        //saveUninitialized: true,
+        cookie: { maxAge },
+      })
+
+      
+    )
+
+    
     const database = await mysql.createPool({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'usuarios',
+      host: context.secrets.mysqlHost,
+      user: context.secrets.mysqlUser,
+      password: context.secrets.mysqlPassword,
+      database: context.secrets.mysqlDatabase,
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
     });
 
-    await database.query("USE usuarios");
+    await database.query("USE " + context.secrets.mysqlDatabase);
 
     context.database = database;
     
