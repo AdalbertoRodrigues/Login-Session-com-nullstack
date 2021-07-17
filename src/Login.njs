@@ -8,25 +8,22 @@ class Login extends Nullstack {
     password = "";
     result;
 
-    async prepare({ project, page, router}) {
+    async prepare({ project, page, router }) {
         page.title = `${project.name} - Nulla-chan te dá as boas vindas!`;
         page.description = `${project.name} foi feito com Nullstack`;
-        if(await this.isLoggedIn())
-            router.url = "/";
-    }
-
-    async initiate({ router }) {
+        /*
         if (await this.isLoggedIn())
-            window.location.replace("/");
+            router.url = "/";
+        */
     }
-
-    static async isLoggedIn({ request}) {
+    
+    static async isLoggedIn({ request }) {
         return !!request.session.user;
     }
+    
 
     static async login({ database, request, user, password }) {
         const [[result]] = await database.query("SELECT * FROM users WHERE username = ? AND password = PASSWORD(?)", [user, password]);
-        console.log(result, user, password);
         if (!result)
             return { error: 'not found' };
         try {
@@ -39,11 +36,10 @@ class Login extends Nullstack {
         return 1;
     }
 
-    async loginButton({router}) {
+    async loginButton(context) {
         this.result = await this.login({ user: this.user, password: this.password });
-        console.log(this.result)
-        if(await this.isLoggedIn())
-            router.url = "/";
+        if (this.result.id)
+            context.user = this.result;
     }
 
 

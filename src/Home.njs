@@ -14,16 +14,7 @@ class Home extends Nullstack {
   async prepare({ project, page, router }) {
     page.title = `${project.name} - Nulla-chan te dá as boas vindas!`;
     page.description = `${project.name} foi feito com Nullstack`;
-
-    if (await this.isLoggedIn() ==  false)
-      router.url = "/login";
-
   }
-
-  static async isLoggedIn({ request }) {
-    return !!request.session.user;
-  }
-
   static async getUsers({ database }) {
     const [users] = await database.query("SELECT * FROM users");
     return users;
@@ -40,17 +31,23 @@ class Home extends Nullstack {
           <div class="row">
             <h3>Usuários</h3>
             <table class="table table-dark">
-              <tr>
-                <th>Usuário</th>
-                <th>Ativo</th>
-              </tr>
-              {this.users.map((element) => {
-                return (<tr>
-                  <td>{element.username}</td>
-                  <td>{element.active ? "Sim" : "Não"}</td>
+              <thead>
+                <tr>
+                  <th>Usuário</th>
+                  <th>Ativo</th>
+                  <th></th>
                 </tr>
-                );
-              })}
+              </thead>
+              <tbody>
+                {this.users.map((element) => {
+                  return (<tr>
+                    <td>{element.username}</td>
+                    <td>{element.active ? "Sim" : "Não"}</td>
+                    <td class="text-center"><i class="bi bi-pencil-square"></i></td>
+                  </tr>
+                  );
+                })}
+              </tbody>
             </table>
           </div>
           <div class="row">

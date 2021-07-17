@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise/';
 import session from 'express-session'
 
 //styles
-import 'bootstrap/dist/css/bootstrap.min.css';  
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './Application.scss';
 //components
 import Home from './Home';
@@ -20,15 +20,12 @@ class Application extends Nullstack {
     context.server.use(
       session({
         secret: context.secrets.privateKey,
-        //resave: true,
-        //saveUninitialized: true,
+        resave: true,
+        saveUninitialized: true,
         cookie: { maxAge },
       })
-
-      
     )
 
-    
     const database = await mysql.createPool({
       host: context.secrets.mysqlHost,
       user: context.secrets.mysqlUser,
@@ -42,7 +39,15 @@ class Application extends Nullstack {
     await database.query("USE " + context.secrets.mysqlDatabase);
 
     context.database = database;
-    
+
+  }
+
+  static async getUser({ request }) {
+    return request.session.user;
+  }
+
+  async initiate(context) {
+    context.user = await this.getUser();
   }
 
   renderHead() {
@@ -53,16 +58,18 @@ class Application extends Nullstack {
         <link
           href="https://fonts.googleapis.com/css2?family=Crete+Round&family=Roboto&display=swap"
           rel="stylesheet" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
       </head>
     )
   }
 
-  render() {
+  render({ user }) {
     return (
       <main>
         <Head />
+        {!user && <Login route="*" />}
         <Home route="/" />
-        <Login route="/login" />
       </main>
     )
   }
